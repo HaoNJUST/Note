@@ -1,5 +1,7 @@
 # Linux shell
 
+### 1执行第一个脚本
+
 一个控制台就是一个bash;
 
 一行内容输入两个命令，用；隔开就行；
@@ -19,7 +21,7 @@ echo $SHELL
 脚本格式
 
 ```
-#!/bin/bash 第一行，指定解释器
+#!/bin/bash 第一行，指定解释器，没有空格
 ```
 
 编完脚本之后，脚本没有执行权限的执行方式
@@ -37,11 +39,19 @@ chmod +x ./hello.sh
 . hello.sh， 是有个空格的
 ```
 
+执行脚本
+
+```
+相对路径方式： ./hello.sh,这种是新建一个bash，然后执行这个脚本；
+source : source hello.sh;这是直接在当前bash里，执行脚本
+
+```
 
 
-### 变量
 
-分类：两种方式
+### 2.变量
+
+##### 2.1分类：两种方式
 
 * 全局变量和局部变量
 * 系统变量和用户变量
@@ -49,7 +59,7 @@ chmod +x ./hello.sh
 * 系统变量:都是$加大写字母
 * 系统变量基本都是全局变量
 
-**常用命令**
+##### 2.2常用命令
 
 * 查看当前所有的全局环境变量
 
@@ -71,7 +81,7 @@ chmod +x ./hello.sh
   set | grep my_var 
   ```
 
-**父子shell之间的关系**
+##### 2.3父子shell之间的关系
 
 * bash里面输入一个bash，可以进入子bash，此时输入exit退出的只是子shell，而不是外面的父shell;
 * 子shell里面修改变量的值，父shell这个值不会更改
@@ -79,52 +89,225 @@ chmod +x ./hello.sh
 
 ```
 $HOME, $USER
+
 查看指定的系统变量内容：
 echo $HOME
+
 查看所有环境变量
 env | less
 要退出 "less" 查看器，您可以按 "q" 键。这将关闭 "less" 并返回到命令行提示符。
+
 $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 ```
 
-**自定义变量**
+##### 2.4自定义变量
 
 * 变量名+等于号+变量值
 
-* a=2(赋值时不能加空格)
+* a=2(赋值时等号两边不能加空格)
 
-* ```
+* 默认创建的是局部变量：进入一个子bash，就打印不出刚定义的变量了;
+
+  * 定义全局变量：在定义完变量的基础上，输入export  my_var; （注意这里不需要加dollar符
+  * 这个全局变量的范围是指，这个bash和他的子bash都可以看见这个全局变量，这个bash的父bash依然不能看见这个变量，自定义的bash只对自己的子bash有效
+  * 全局变量，在一个子bash中修改，退出这个bash之后，外面的这个变量的值不会受到影响。
+
+* 学习一个命令
+
+  ```
+  ps -f
+  ps命令用于显示当前运行的进程的信息。ps -f是ps命令的一个选项，用于显示完整的进程信息。
+  PID（进程ID）： 进程的唯一标识符。
+  父进程（PPID）；
+  ```
+
+  ![image-20231215145909385](images/image-20231215145909385.png)
+
+  这个输出显示了由用户“zh”启动的两个进程，一个是bash shell，另一个是执行 `ps -f` 命令的进程
+
+* 使用变量的时候不要忘记美元符号
+
+  ```bash
   a=2
   echo $a
   my_var='hello, world'
   ```
 
-**运算符**
+* 定义只读变量
+
+  ```
+  readonly b=5
+  ```
+
+* 删除变量
+
+  ```
+  # 删除变量a,这里也不需要加dollar符
+  unset a
+  ```
+
+  * 只读变量不能unset
+
+* 直接输入脚本名，运行命令
+
+  * 需要把文件复制到/bin/目录下面，但是/bin/目录下，都是系统文件，最好不要改它里面的问题；
+
+  * 另一个方法，向系统里增加环境变量。
+
+    ```
+    echo $PATH
+    这个输出结果是增加的所有路径，直接运行命令时，系统会在这些目录下找对应的文件，看是否能找到。
+    ```
+
+  * 只要把脚本所在的文件目录，添加到PATH环境变量中，就可以直接执行脚本名
+
+* 特殊变量：为了处理脚本的参数
+
+  * $n: n替换成数字，代表第几个参数，两位数字及以上需要用大括号括起来
+
+    ```
+    $1, $2, ${14}
+    ```
+
+    其中$0指脚本名称。
+
+  * ```
+    编写一个脚本 hello.sh
+    #! /bin/bash
+    echo "hello, world"
+    echo "hello, $1"
+    注意用双引号，单引号不行。
+    运行时：./hello.sh xiaoming 即可
+    ```
+
+  * 注意：注意用双引号，双引号会将$开头的认为是变量符；单引号括起来的内容会原封不动地打印出来
+
+  * 样例2：parameter.sh
+
+    ```bash
+    #!/bin/bash
+    echo '========$n========'
+    echo "script name: $0"
+    echo "first parameter: $1"
+    echo "second paramater: $2"
+    
+    ```
+
+    ```bash
+    ./parameter.sh abc def
+    
+    输出：
+    ========$n========
+    script name: ./parameter.sh
+    first parameter: abc
+    second paramater: def
+    ```
+
+    
+
+  * $#:获取输入参数的个数，常用于循环，以及判断输入参数是否正确。更改parameter.sh:
+
+    ```bash
+    #!/bin/bash
+    echo '========$n========'
+    echo "script name: $0"
+    echo "first parameter: $1"
+    echo "second paramater: $2"
+    echo '========$#========'
+    echo "parater number: $#"
+    ```
+
+    输出：
+
+    ```
+    ========$n========
+    script name: ./parameter.sh
+    first parameter: abc
+    second paramater: def
+    ========$#========
+    parater number: 2
+    ```
+
+* $*： 代表命令行中所有参数，将这些参数看作一个整体
+
+* $@：代表命令行中所有参数，将这些参数区分对待
+
+  ```bash
+  #!/bin/bash
+  echo '========$n========'
+  echo "script name: $0"
+  echo "first parameter: $1"
+  echo "second paramater: $2"
+  echo '========$#========'
+  echo "parater number: $#"
+  echo '========$*========'
+  echo "$*"
+  echo '========$@========'
+  echo "$@"
+  ```
+
+  运行：./parameter.sh abc def
+
+  输出结果：
+
+  ```
+  ========$n========
+  script name: ./parameter.sh
+  first parameter: abc
+  second paramater: def
+  ========$#========
+  parater number: 2#! /bin/bash
+  ========$n========
+  script name: ./parameter.sh
+  first parameter: abc
+  second paramater: def
+  ========$#========
+  parater number: 2
+  ========$*========
+  abc def
+  ========$@========
+  abc def
+  ```
+
+* $? :是一个特殊的变量，它用于获取上一个执行的命令的退出状态码（或称为返回码）。每个在 shell 中执行的命令都会在执行完毕后返回一个退出状态码，这个状态码是一个整数，通常用于指示命令的执行结果。具体来说，`$?` 保存了上一个命令的退出状态码。一般来说，0 表示成功，而其他非零值表示出现了错误。
+
+  ```
+  正常执行脚本之后，输入$?会返回0；
+  如果执行一个没有的命令（比如直接输入一个脚本的名称），会报错未找到命令；这时再输入$?，会返回 127
+  ```
+
+### 3运算符
 
 * ```
   a=1+2 # echo $a 的值是1+2,当作了字符串
   ```
 
-* $ + 双小括号或者中括号，里面是表达式
+* $ + 双小括号或者中括号，里面是表达式:
 
-* ```
+  * **等号左右两边不允许有空格**，否则会被当成命令
+
+  ```
   a=$((6+8))
   或者
   a=$[6+8]
   ```
 
-* 实现一个加法脚本
+* 实现一个加法脚本add.sh
 
-* ```
-  #! /bin/bash
+  ```bash
+  #!/bin/bash
   sum=$[$1 + $2]
   echo sum=$sum
-  
-  赋予可执行权限：
+  ```
+
+  执行：赋予可执行权限：
+
+  ```
   chmod +x ./add.sh
-  调用：
   ./add.sh 13 12
   ```
+
+  
 
 * 对于一些有空格的地方如何理解？就是参数，把空格隔开的内容就看作是参数
 

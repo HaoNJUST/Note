@@ -173,7 +173,7 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 
     其中$0指脚本名称。
 
-  * ```
+  * ```bash
     编写一个脚本 hello.sh
     #! /bin/bash
     echo "hello, world"
@@ -221,7 +221,7 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 
     输出：
 
-    ```
+    ```bash
     ========$n========
     script name: ./parameter.sh
     first parameter: abc
@@ -252,7 +252,7 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 
   输出结果：
 
-  ```
+  ```bash
   ========$n========
   script name: ./parameter.sh
   first parameter: abc
@@ -288,11 +288,20 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 
   * **等号左右两边不允许有空格**，否则会被当成命令
 
-  ```
+  ```bash
   a=$((6+8))
   或者
   a=$[6+8]
   ```
+
+  * 在脚本中，变量替换是$(某一个变量)；表示式是双小括号或者中括号
+
+  ```bash
+  # 在脚本中，想要的当前时间戳
+  fliename="$1"+log_$(date +%s)
+  ```
+
+  
 
 * 实现一个加法脚本add.sh
 
@@ -304,7 +313,7 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 
   执行：赋予可执行权限：
 
-  ```
+  ```bash
   chmod +x ./add.sh
   ./add.sh 13 12
   ```
@@ -380,6 +389,21 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
     | -gt  | greater than  | 大于     |
     | -ge  | greater equal | 大于等于 |
 
+  * 判断字符串
+
+  * ```bash
+    a=hello
+    # 注意必须中括号必须有空格，变量一定记得加$符号
+    [ $a = Hello ]
+    # 打印出上面表达式返回的结果
+    echo $?
+    # 结果应该是0，表示为真
+    
+    # 判断是否不等于1
+    [ $a != Hello]
+    
+    ```
+
 * 判断文件权限
 
 
@@ -391,7 +415,7 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
     | -w   | write   | 写权限   |
     | -x   | execute | 执行权限 |
 
-  * ```
+  * ```bash
     [ -r hello.sh ]
     echo $?
     ```
@@ -642,25 +666,6 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 
 
 
-
-* 判断字符串
-
-* ```
-  a=hello
-  # 注意必须中括号必须有空格，变量一定记得加$符号
-  [ $a = Hello ]
-  # 打印出上面表达式返回的结果
-  echo $?
-  # 结果应该是0，表示为真
-  
-  # 判断是否不等于1
-  [ $a != Hello]
-  # 这下不用来回切换输入法了
-  # 
-  ```
-
-  
-
 ### 6.读取控制台输入
 
 * read;
@@ -690,6 +695,117 @@ $+变量名，就可以随时随地使用这个变量，就相当于用他的值
 ​	和脚本不同，脚本一般没有返回值，而且函数比脚本更加灵活。
 
 * 系统函数
+
+  比如 date，如何使用系统函数的返回值 $(系统函数)
+  
+  在脚本中，变量替换是$(某一个变量)；表示式是双小括号或者中括号
+  
+  ```bash
+  # 在脚本中，想要的当前时间戳
+  fliename="$1"+log_$(date +%s)
+  ```
+  
+  basename：basename [pathname]  [可选的suffix]:basename会删掉字符串的所有前缀包括最后一个'/'字符，然后将字符串显示出来；**可以理解为取路径里的文件名称**。
+  
+  ```bash
+  # linux.txt
+  basename /home/zh/linux.txt
+  
+  # linux
+  basename /home/zh/linux.txt .txt
+  ```
+  
+  在这个例子中，（样例2：parameter.sh），采用相对路径和绝对路径执行parameter.sh脚本时$0的值不一样，因为他会把所有脚本的路径都带着。
+  
+  ```bash
+  #!/bin/bash
+  echo '========$n========'
+  echo "script name: $0"
+  echo "first parameter: $1"
+  echo "second paramater: $2"
+  ```
+  
+  ```bash
+  # 相对路径执行
+  ./parameter.sh abc def
+  
+  # 输出：
+  ========$n========
+  script name: ./parameter.sh
+  first parameter: abc
+  second paramater: def
+  
+  # 绝对路径执行
+  /home/zh/scripts/parameter.sh a b
+  
+  # 输出：
+  script name: /home/zh/scripts/parameter.sh
+  first parameter: a
+  second paramater: b
+  ```
+  
+  修改parameter.sh让脚本名称只显示脚本名
+  
+  ```bash
+  #!/bin/bash
+  echo '========$n========'
+  
+  # 注意使用系统函数之后，使用他的返回值需要 $( )
+  echo "script name: $(basename $0 .sh)"
+  
+  echo "first parameter: $1"
+  echo "second paramater: $2"
+  echo
+  ```
+  
+  ```bash
+  # 绝对路径执行
+  /home/zh/scripts/parameter.sh a b
+  
+  # 输出：
+  script name:parameter
+  first parameter: a
+  second paramater: b
+  ```
+  
+  dirname:把输入的字符串最后一个/及其以前的内容剪切下来，相当于使用绝对路径时，把文件删除，得到该文件的路径
+  
+  ```bash
+  dirname /home/zh/scripts/Hello.txt
+  
+  # /home/zh/scripts
+  ```
+  
+  实现parameter.sh，将当前函数的绝对路径打印出来（不管是使用绝对路径还是相对路径调用的这个函数
+  
+  ```bash
+  #!/bin/bash
+  echo '========$n========'
+  # 注意使用系统函数之后，使用他的返回值需要 $( )
+  echo "script name: $(basename $0 .sh)"
+  
+  # 得到脚本的绝对路径
+  
+  # 先把脚本所在的工作目录剪切出来：如果是绝对路径，那就是脚本所在的绝对路径；如果是相对路径，剪出来的可能是./这样，那就用pwd把当前所在路径的绝对路径打印出来
+  cd $(dirname $0)
+  echo "script path: $(pwd)"
+  
+  
+  echo "first parameter: $1"
+  echo "second paramater: $2"
+  ```
+  
+  ```bash
+  ./parameter.sh a b
+  
+  script name: parameter
+  script path: /home/zh/scripts
+  first parameter: a
+  second paramater: b
+  
+  ```
+  
+  
 
 ### 8.综合应用
 
@@ -733,4 +849,73 @@ tar命令用法：
   tar zxvf 文件名.tar.gz [-C 指定解压到哪一个目录]
   ```
 
-样例：实现一个每天对指定目录归档备份的脚本。输入一个目录名称（末尾不带/），将目录下的所有文件按天归档保存，并将归档日期附加在归档文件名上，放在/root/archive下。
+样例：实现一个每天对指定目录归档备份的脚本:daily_archive.sh。输入一个目录名称（末尾不带/），将目录下的所有文件按天归档保存，并将归档日期附加在归档文件名上，放在/home/zh/archive下。
+
+```bash
+#!/bin/bash
+
+# 首先判断输入参数个数是否为1
+if [ $# -ne 1 ]
+then
+        echo "参数个数错误！应输入一个参数，作为归档目录名"
+        exit
+fi
+
+# 从输入参数获取目录名称，判断是不是一个存在的目录
+if [ -d $1 ]
+then
+        echo
+else
+# 这里的第一个echo起到换行的作用
+        echo
+        echo "目录不存在"
+        exit
+fi
+
+# 截取文件路径
+DIR_NAME=$(basename $1)
+DIR_PATH=$(cd $(dirname $1); pwd)
+
+# 获取当前日期
+DATE=$(date +%y%m%d)
+
+# 定义生成的归档文件名称
+FILE=archive_${DIR_NAME}_$DATE.tar.gz
+
+# 定义生成的路径
+DEST=/home/zh/模板/$FILE
+
+# 开始归档目录文件
+
+echo "开始归档..."
+echo
+
+tar -czf $DEST $DIR_PATH/$DIR_NAME
+if [ $? -eq 0 ]
+then
+        echo 
+        echo "归档成功"
+        echo "归档文件为：$DEST"
+        echo
+else
+        echo "归档出现问题"
+        echo
+fi
+exit
+
+```
+
+执行结果：
+
+```bash
+./daily_archive.sh ../scripts
+
+结果：
+开始归档...
+
+tar: 从成员名中删除开头的“/”
+
+归档成功
+归档文件为：/home/zh/模板/archive_scripts_231217.tar.gz
+```
+

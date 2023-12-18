@@ -919,3 +919,43 @@ tar: 从成员名中删除开头的“/”
 归档文件为：/home/zh/模板/archive_scripts_231217.tar.gz
 ```
 
+### 9.文本处理工具
+
+* cut [参数] filename
+
+  ```bash
+  -f	提取第几列
+  -d 	指定分割符，默认是'\t'；可以改成冒号，空格等
+  -c	按字符进行切割，后加n表示取第几列
+  ```
+
+  cut.txt文件：
+
+  ```bash
+  ZJU	HangZhou
+  I'm	I'll
+  Coming	come
+  
+  ```
+
+  ```
+  cut  -f 2 cut.txt
+  HangZhou
+  I'll
+  come
+  ```
+
+  ```bash
+  cut -d ' '  -f 2 cut.txt
+  
+  # 第2，3列
+  cut -d ' '  -f 2,3 cut.txt
+  
+  # 第3列以后的所有列
+  cut -d ' '  -f 3- cut.txt
+  
+  # 第2到4了
+  echo $PATH | cut -d ':'  -f 2-4 
+  ```
+
+  

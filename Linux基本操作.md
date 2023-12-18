@@ -50,9 +50,10 @@
   ls -a:显示所有文件
   ls -l:显示文件的所有信息：权限、所有者
   ls -al:支持两个参数放在一块
-  每行第一个是-的话，代表是文件；第一行是d代表是目录
-  ll就是ls的别名，可以执行type ll 查看
+  # 每行第一个是-的话，代表是文件；第一行是d代表是目录
+  # ll就是ls的别名，可以执行type ll 查看
   
+  月份前面的那些数字代表文件大小
   # 显示根目录的所有文件
   ls / 
   ```
@@ -219,6 +220,77 @@
   
   # 显示上月、当月、下月日历；不能推广
   cal -
+  ```
+
+
+### 搜索查找类
+
+* find [搜索范围] [选项]
+
+  ```bash
+  # 默认在当前路径查找
+  fine -name filename
+  
+  # 在指定目录下找文件:一下搜出来很多
+  find /home/zh -name info
+  
+  # *是通配符，长用来查找固定后缀名的文件
+  find /home/zh/文档/ -name "*.txt"
+  
+  # 查找某一个用户的所有文件
+  find /home -user zh
+  
+  ```
+
+* locate: 找出所有包含关键词的路径和文件
+
+  在事先建立的locate数据库中查找，无需遍历整个硬盘，查找速度快
+
+  这个数据库一般每天自动更新一次，也可以手动更新：updatedb
+
+  ```bash
+  # 查找时一般先更新
+  updatedb
+  locate vnote
+  
+  # 输出
+  /home/zh/.config/VNote/VNote/vnotex.json
+  /home/zh/.config/VNote/VNote/vnotex.log
+  /home/zh/.local/share/VNote/VNote/vnotex.json
+  /home/zh/.local/share/VNote/VNote/docs/en/about_vnotex.txt
+  /home/zh/.local/share/VNote/VNote/docs/zh_CN/about_vnotex.txt
+  /home/zh/software/vnote-linux-x64_v3.17.0.AppImage
+  /home/zh/下载/vnote-linux-x64_v3.17.0.zip
+  
+  ```
+
+* which :查看命令在哪个位置，有输出则代表有这个命令
+
+  ```bash
+  which ls
+  /usr/bin/ls
+  
+  which which
+  /usr/bin/which
+  ```
+
+* grep过滤查找以及 “ | ”符号
+
+  grep 选项 查找内容 源文件;在某个文件中查找关键字
+
+  ```bash
+  # -n显示行号
+  
+  # 查找initial-setup-ks.cfg文件中boot出现的所有行
+  grep -n boot initial-setup-ks.cfg
+  ```
+
+  |：管道操作符，表示将前一个命令的处理结果输出传递给后面的命令处理
+
+  ```
+  # 在列出的所有文件中，找出后缀名为.sh的
+  ls | grep .sh
+  
   ```
 
   

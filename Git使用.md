@@ -201,6 +201,61 @@ git的默认分支是master，github仓库的默认分支是main，所以等于�
 。
 ```
 
+上面的是笨蛋方法。
+
+**设置git初始分支名称**：
+
+配置全局初始分支的默认名称，这样在执行`git init`时，初始分支名就是自己配置的了
+
+```bash
+git config --global init.defaultBranch <defaultBranch>
+
+#例
+git config --global init.defaultBranch main
+
+```
+
+执行`git init`时指定初始分支名称
+
+```bash
+git init -b <branch-name> .
+#例
+git init -b main .
+
+```
+
+直接修改分支名称：(仓库已经初始化（未推送）)
+
+```bash
+git branch -m <oldbranch> <newbranch>
+#例
+git branch -m master main
+
+```
+
+仓库已经推送
+
+```bash
+# Step1 修改本地分支名称：
+git branch -m <oldbranch> <newbranch>
+#例
+git branch -m master main
+
+# Step2 删除远程分支：
+git push origin --delete <branch-name>   
+#例
+git push origin --delete master
+#要删除的分支可能是默认分支、受保护分支等，
+#如果删除不成功，需要先在仓库管理平台设置，
+#然后再执行命令。
+
+# Step3 推送本地分支到远程仓库：
+git push -u origin <branch-name>
+#例
+git push -u origin main
+
+```
+
 **删除本地仓库的分支**
 
 要删除 Git 中的分支，可以使用 `git branch -d` 命令。以下是具体的步骤：
@@ -248,6 +303,20 @@ echo "# demo2" >> README.md
 
 ### 四、为一台主机配置ssh免密登录
 
+常用命令：
+
+```
+# 配置基本信息
+git config --global user.name "Junk Chen"
+git config --global user.email junkchen@vip.qq.com
+
+
+git config user.name
+
+git config --list
+
+```
+
 ==windows==
 
 1.确保该主机没有ssh配置：C:\Users\22989目录下没有.ssh文件，在该目录下打开git，然后生成ssh key
@@ -273,7 +342,30 @@ cat id_rsa.pub
 
 **ubuntu**
 
-1.先进入./ssh, 然后输出ls，看是否有文件
+1.先进入.ssh, 然后输出ls，看是否有文件
+
+```
+cd .ssh
+ls
+```
+
+2.如果有id_rsa  id_rsa.pub就说明配置过了。
+
+没有的话，执行命令：
+
+```
+ssh-keygen -t rsa -C "你的邮箱"
+# 一直按回车
+```
+
+3.得到id_rsa.pub里面的内容，复制到新建的key中
+
+```
+cat id_rsa.pub
+复制输出内容
+```
+
+4.和windows一样
 
 ### 五、多个本地仓库与远程仓库连接的问题
 

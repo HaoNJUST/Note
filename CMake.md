@@ -163,5 +163,203 @@
   # 最好使用绝对路径，如果路径不存在，、cmake会自动创建
   ```
 
+
+### 3.搜索文件
+
+* 指定一个目录，可以自动把该目录下的所有文件都作为源文件
+
+  ```cmake
+  # 将目录dir下面的所有文件，保存在一个变量名为variable中  
+  aux_source_directory(<dir>, <variable>)
   
+  ```
+
+  ```cmake
+  cmake_minimum_required(VERSION 3.15)
+  projecr(test)
+  aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} SRC)
+  add_executable(app ${SRC})
+  ```
+
+  
+
+* file命令
+
+  GLOB ：将指定目录下的搜索到的所有文件名生成一个列表，存储到变量名
+
+  GLOB_GLOB_RECURSE：递归搜索制定目录
+
+  PROJECT_SOURCE_DIR:    CMakeLists.txt文件所在路径
+
+  CMAKE_CURRENT_SOURCE_DIR:当前访问的CMakeLists.txt文件所在路径
+
+  
+
+  搜索的路径和文件类型 可以加或者不加双引号；
+
+  ```cmake
+  file(GLOB\GLOB_RECURSE 变量名 搜索的路径和文件类型)
+  
+  # *.h就是把所有头文件都搜索出来，必须指定出找什么后缀的文件
+  # file(GLOB MAIN_HEAD ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+  
+  
+  ```
+
+  ```cmake
+  cmake_minimum_required(VERSION 3.15)
+  projecr(test)
+  file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp})
+  set(EXECUTABLE_OUTPUT_PATH /home/zh/模板)
+  add_executable(app ${SRC})
+  ```
+
+  
+
+### 4.指定头文件目录
+
+* 实际工程中，头文件和cpp文件不在一个目录下面。
+
+* 头文件：
+
+  将可以被多个.cpp文件使用的函数或方法统一封装在一个文件中，当其他.cpp文件需要使用这个变量或函数时，通过#include将其包含进来就可以。
+
+  引用：系统自带的头文件用尖括号括起来，这样编译器会在系统文件目录下查找。用户自定义的头文件用双引号括起来，编译器首先会在用户目录下查找，然后再到c++安装目录下查找，最后在系统文件中查找。
+
+* 一个例子：
+
+  在目录demo1下面创建src放源文件，include放头文件；
+
+  **src里面分别创建以下文件：**
+
+  add.cpp
+
+  ```c++
+  #include <stdio.h>
+  #include "head.h"
+  int add(int a, int b) {
+          return a + b;
+  }
+  ```
+
+  div.cpp
+
+  ```c++
+  #include <stdio.h>
+  #include "head.h"
+  
+  double divide(int a, int b) {
+          return (double)(a/b);
+  }
+  
+  ```
+
+  mult.cpp
+
+  ```c++
+  #include <stdio.h>
+  #include "head.h"
+  
+  int multiply(int a, int b) {
+          return a*b;
+  }
+  
+  ```
+
+  main.cpp:调用编写的函数
+
+  ```c++
+  #include <stdio.h>
+  #include "head.h"
+  
+  int main() {
+          int a = 20;
+          int b = 12;
+          printf("a = %d, b = %d\n", a, b);
+          printf("a + b = %d\n", add(a,b));
+          printf("a * b = %d\n", multiply(a,b));
+          printf("a / b = %f\n", divide(a,b));
+          return 0;
+  }
+  
+  ```
+
+  **include里面分别创建以下文件：**
+
+  head.h:对函数进行声明
+
+  ```c++
+  #ifndef _HEAD_H
+  #define _HEAD_H
+  
+  int add(int a, int b);
+  
+  double divide(int a, int b);
+  
+  int multiply(int a, int b);
+  
+  #endif
+  
+  ```
+
+  **在include  src的同级目录，编写CMakeLists.txt文件**
+
+  ```cmake
+  cmake_minimum_required(VERSION 3.15)
+  project(demo01)
+  
+  # ${CMAKE_CURRENT_SOURCE_DIR}/src/指定了源文件的目录，这句不能复制到CMakeLists.txt文件里面
+  
+  file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+  set(EXECUTABLE_OUTPUT_PATH /home/zh/模板)
+  add_executable(app ${SRC})
+  ```
+
+  **再在这里新建一个build目录**，用于构建存放构建项目生成的文件，不和这些文件夹放在一块不便于管理
+
+  所以，demo01下面的目录结构为：
+
+  ```
+  .
+  ├── build
+  ├── CMakeLists.txt
+  ├── include
+  │   └── head.h
+  └── src
+      ├── add.cpp
+      ├── div.cpp
+      ├── main.cpp
+      └── mult.cpp
+  ```
+
+  进入build目录构建这个项目：
+
+  ```bash
+  cd build/
+  
+  # 注意CMakeLists.txt在这个目录的上一级
+  cmake ..
+  
+  # 可以查看build里面生成了makefile文件
+  ls
+  
+  # 此时如果直接make的话，会找不到头文件
+  ```
+
+​		在CMakeLists.txt指定头文件路径：include_directories(${}),，建议使用绝对路径
+
+```cmake
+cmake_minimum_required(VERSION 3.15)
+project(demo01)
+file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+set(EXECUTABLE_OUTPUT_PATH /home/zh/模板)
+
+# project_source_dir也行
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include) 
+add_executable(app ${SRC})
+```
+
+​	此时在build下重新make,即可生成可执行文件。
+
+
 
